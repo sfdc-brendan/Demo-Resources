@@ -1,0 +1,16 @@
+# Salesforce
+.sf/
+.sfdx/
+.localdevserver/
+
+# IDE / Editor
+.vscode/
+.cursor/
+
+# OS
+.DS_Store
+*.log
+
+# Dependencies / build
+node_modules/
+.eslintcache
