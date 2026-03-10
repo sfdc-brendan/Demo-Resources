@@ -36,13 +36,15 @@ A real-time reactor assembly dashboard showing a 3D-style visual of the tokamak 
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -58,6 +60,8 @@ Then open the `helion-forge` folder in Cursor and proceed with Step 01.
 ---
 
 ## Step 01 — Custom Objects
+
+**What this prompt does:** Creates four custom objects—**Reactor_Build__c**, **Component__c**, **Supplier_Certification__c**, and **Assembly_Milestone__c**—with fields for reactor build info; component type, status, supplier, critical path; certification status and expiry; and milestone dates. Includes the relationships specified in the prompt.
 
 Open Cursor Agent and paste:
 
@@ -78,6 +82,8 @@ Create all objects with appropriate page layouts, set up the master-detail and l
 ---
 
 ## Step 02 — Sample Data
+
+**What this prompt does:** Generates sample data: **2 reactor builds**, **20 components** (statuses: Installed, In Transit, Ordered, Delayed), **6 supplier certifications** (some expiring), and **5 assembly milestones** so the reactor dashboard and flows have data.
 
 ```
 Create realistic sample data for Helion Forge Energy's reactor tracking system:
@@ -116,6 +122,8 @@ Use realistic names for Lead_Engineers and make the data tell a story of a compl
 
 ## Step 03 — Permission Sets
 
+**What this prompt does:** Creates the **Helion_Forge_Admin** permission set with full access (CRUD, View All, Modify All) on Reactor_Build__c, Component__c, Supplier_Certification__c, and Assembly_Milestone__c and their fields.
+
 ```
 Create a permission set called 'Helion_Forge_Admin' that grants full access to Helion Forge Energy's custom objects and fields. The permission set should include:
 
@@ -129,12 +137,14 @@ Create a permission set called 'Helion_Forge_Admin' that grants full access to H
 
 5. Set the permission set label to 'Helion Forge Energy - Full Admin Access' with description 'Complete access to reactor build tracking system for project managers and system administrators'
 
-Generate the permission set metadata XML file and deploy it to the scratch org.
+Generate the permission set metadata XML file and deploy it to the org.
 ```
 
 ---
 
 ## Step 04 — Flows & Automations
+
+**What this prompt does:** Builds **Component_Delay_Alert** (record-triggered on Component__c—when status indicates delay, notifies and updates critical path) and **Certification_Expiration_Check** (scheduled—flags expiring Supplier_Certification__c records).
 
 ```
 Create a Salesforce Flow called 'Component_Delay_Alert' that automates critical path monitoring for Helion Forge Energy:
@@ -169,39 +179,28 @@ Build these flows using Flow Builder best practices with clear descriptions and 
 
 ## Step 05 — Deploy to Org
 
+**What this prompt does:** Runs deploy, assigns **Helion_Forge_Admin**, imports sample data, activates flows (if a script is used), and opens the org so you can verify the reactor list and component data.
+
 ```
-Deploy all Helion Forge Energy metadata to the scratch org using Salesforce DX. Execute the following sequence:
+Deploy all Helion Forge Energy metadata to your Salesforce dev org or SDO using Salesforce DX. Execute the following sequence:
 
-1. First, verify the scratch org is active and authenticated:
-   sfdx force:org:display --targetusername [scratch-org-alias]
+1. First, verify the org is active and authenticated: sf org list or sfdx force:org:display --targetusername [your-org-alias]
+2. Run pre-flight validation if needed: sf project deploy validate --target-org [your-org-alias]
+3. Deploy all metadata: sf project deploy start --target-org [your-org-alias] (or sfdx force:source:push)
+4. Assign the Helion_Forge_Admin permission set: sf org assign permset --name Helion_Forge_Admin
+5. Import the sample data: sf data import tree --plan data/sample-data-plan.json
+6. Activate the flows (if using a script): run the activate-flows script or activate manually in Setup
+7. Open the org to verify: sf org open
+8. Run a quick validation query to confirm data loaded if desired
 
-2. Run pre-flight validation to check for any metadata issues:
-   sfdx force:source:status --targetusername [scratch-org-alias]
-
-3. Deploy all metadata in the force-app/main/default directory:
-   sfdx force:source:push --targetusername [scratch-org-alias] --forceoverwrite
-
-4. Assign the Helion_Forge_Admin permission set to the default user:
-   sfdx force:user:permset:assign --permsetname Helion_Forge_Admin --targetusername [scratch-org-alias]
-
-5. Import the sample data using the Salesforce CLI:
-   sfdx force:data:tree:import --plan data/sample-data-plan.json --targetusername [scratch-org-alias]
-
-6. Activate the flows:
-   sfdx force:apex:execute --targetusername [scratch-org-alias] --apexcodefile scripts/activate-flows.apex
-
-7. Open the org to verify deployment:
-   sfdx force:org:open --targetusername [scratch-org-alias] --path /lightning/o/Reactor_Build__c/list
-
-8. Run a quick validation query to confirm data loaded:
-   sfdx force:data:soql:query --query "SELECT COUNT() FROM Component__c" --targetusername [scratch-org-alias]
-
-Create any necessary data plan JSON files and Apex scripts referenced above. Handle any deployment errors gracefully and provide clear error messages if metadata conflicts occur.
+Create any necessary data plan JSON files and Apex scripts referenced in the scenario. Handle any deployment errors gracefully and provide clear error messages if metadata conflicts occur.
 ```
 
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **reactorAssemblyDashboard** LWC: completion ring (SVG/Chart.js), tokamak-style component diagram (green/yellow/red/gray by status), metric cards (Critical Path, Budget, Certifications Expiring), and activity feed of component/milestone changes (SLDS, dark theme, electric blue/orange).
 
 ```
 Build a Lightning Web Component called 'reactorAssemblyDashboard' that creates an impressive visual display of Helion Forge Energy's reactor build status:
@@ -245,53 +244,19 @@ Make the component visually striking and immediately convey the status of this c
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore, creates README (Helion Forge - Reactor Lifecycle Management, dev org/SDO setup, object model, LWC overview), and pushes to a repo such as helion-forge-reactor-management.
+
 ```
 Initialize a Git repository for the Helion Forge Energy Salesforce project and push to GitHub:
 
-1. Initialize git in the project root directory:
-   git init
-
-2. Create a comprehensive .gitignore file for Salesforce DX projects that excludes:
-   - .sfdx/
-   - .sf/
-   - .vscode/
-   - node_modules/
-   - .DS_Store
-   - *.log
-   - .localdevserver/
-   - .org-metadata/
-   - config/
-   - coverage/
-   - .eslintcache
-
-3. Create a detailed README.md file with:
-   - Project title: 'Helion Forge Energy - Reactor Component Lifecycle Management'
-   - Description: Overview of the fusion reactor tracking system
-   - Installation instructions for setting up a scratch org
-   - Object model documentation listing all custom objects and their relationships
-   - Component overview describing the reactorAssemblyDashboard LWC
-   - Demo data instructions
-   - Screenshots section (placeholder for future screenshots)
-   - Technology stack: Salesforce DX, Lightning Web Components, Flow Builder
-   - License: MIT
-
-4. Stage all files:
-   git add .
-
-5. Create initial commit:
-   git commit -m "Initial commit: Helion Forge Energy reactor tracking system with custom objects, flows, sample data, and reactor assembly dashboard LWC"
-
-6. Create a new GitHub repository using GitHub CLI (or provide manual instructions):
-   gh repo create helion-forge-reactor-management --public --description "Salesforce-based reactor component lifecycle management system for fusion energy startup Helion Forge Energy. Tracks tokamak components, supplier certifications, and assembly milestones with real-time visualization."
-
-7. Add remote and push:
-   git remote add origin https://github.com/[username]/helion-forge-reactor-management.git
-   git branch -M main
-   git push -u origin main
-
-8. Create a LICENSE file (MIT License)
-
-9. Add GitHub repository topics: salesforce, salesforce-dx, lwc, fusion-energy, reactor-management, demo
+1. Initialize git in the project root directory: git init
+2. Create a comprehensive .gitignore file for Salesforce DX projects that excludes: .sfdx/, .sf/, .vscode/, node_modules/, .DS_Store, *.log, .localdevserver/, .org-metadata/, config/, coverage/, .eslintcache
+3. Create a detailed README.md file with: project title 'Helion Forge Energy - Reactor Component Lifecycle Management', description, installation instructions for setting up a dev org or SDO, object model documentation, component overview (reactorAssemblyDashboard LWC), demo data instructions, technology stack, and license
+4. Stage all files: git add .
+5. Create initial commit with message as specified in the scenario
+6. Create a new GitHub repository (e.g. helion-forge-reactor-management) with gh repo create or manually
+7. Add remote and push: git remote add origin [url], git branch -M main, git push -u origin main
+8. Add LICENSE file (MIT) and repository topics as desired
 
 Provide clear terminal commands and explain each step for developers unfamiliar with Git or GitHub CLI.
 ```

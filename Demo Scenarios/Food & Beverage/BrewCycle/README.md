@@ -36,13 +36,15 @@ An interactive map-based LWC showing kegs scattered across the city with color-c
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -58,6 +60,8 @@ Then open the `brewcycle` folder in Cursor and proceed with Step 01.
 ---
 
 ## Step 01 — Custom Objects
+
+**What this prompt does:** Creates four custom objects—**Brewery__c**, **Keg__c**, **Account_Inventory__c**, and **Delivery_Route__c**—with fields for brewery name/production/contact; keg ID, beer style, size, status, lookups to Brewery and Account, days-at-location formula; inventory fill level and reorder formula; and route driver, date, stops, status. Uses standard Account for bars/restaurants.
 
 Open Cursor Agent and paste:
 
@@ -79,6 +83,8 @@ Create all these objects with proper relationships, validation rules for keg tra
 
 ## Step 02 — Sample Data
 
+**What this prompt does:** Generates sample data: **5 breweries**, **25 kegs** (mixed styles and statuses, some Lost), **12 Account records** (bars/restaurants), **15 Account_Inventory** links (fill levels, reorder triggers), and **3 delivery routes** (Planned, In Progress, Completed) so the map and flows have data.
+
 ```
 Create realistic sample data for BrewCycle's keg tracking system:
 
@@ -99,6 +105,8 @@ Make all data interconnected and tell a story of active beer distribution.
 
 ## Step 03 — Permission Sets
 
+**What this prompt does:** Creates the **BrewCycle_Admin** permission set with full CRUD and field access on Brewery__c, Keg__c, Account_Inventory__c, and Delivery_Route__c (and any standard object access needed).
+
 ```
 Create a permission set named BrewCycle_Admin that grants complete access to the keg tracking system:
 
@@ -114,6 +122,8 @@ Create a permission set named BrewCycle_Admin that grants complete access to the
 ---
 
 ## Step 04 — Flows & Automations
+
+**What this prompt does:** Builds the **Keg_Reorder_Alert** record-triggered flow: when Account_Inventory__c indicates reorder (e.g. fill level or overdue), creates alerts and/or retrieval actions as specified so reorder logic is automated.
 
 ```
 Create a Salesforce Record-Triggered Flow named 'Keg_Reorder_Alert' that automates the reorder process:
@@ -135,15 +145,17 @@ Include error handling and make the flow active immediately. Add clear descripti
 
 ## Step 05 — Deploy to Org
 
-```
-Deploy the complete BrewCycle keg tracking system to the Salesforce scratch org:
+**What this prompt does:** Runs deploy, assigns **BrewCycle_Admin**, and imports sample data so the four custom objects, flow, and keg/inventory/route records are in the org for the map LWC.
 
-1. First, verify the scratch org is created and active with: sf org list
-2. Run a validation check on all metadata: sf project deploy validate --target-org [scratch-org-alias]
-3. Deploy all custom objects, fields, flows, and permission sets: sf project deploy start --target-org [scratch-org-alias]
-4. After successful deployment, assign the BrewCycle_Admin permission set to the scratch org user: sf org assign permset --name BrewCycle_Admin --target-org [scratch-org-alias]
-5. Import the sample data using: sf data import tree --plan data/sample-data-plan.json --target-org [scratch-org-alias]
-6. Verify deployment by opening the org: sf org open --target-org [scratch-org-alias]
+```
+Deploy the complete BrewCycle keg tracking system to your Salesforce dev org or SDO:
+
+1. First, verify the org is created and active with: sf org list
+2. Run a validation check on all metadata: sf project deploy validate --target-org [your-org-alias]
+3. Deploy all custom objects, fields, flows, and permission sets: sf project deploy start --target-org [your-org-alias]
+4. After successful deployment, assign the BrewCycle_Admin permission set to your user: sf org assign permset --name BrewCycle_Admin --target-org [your-org-alias]
+5. Import the sample data using: sf data import tree --plan data/sample-data-plan.json --target-org [your-org-alias]
+6. Verify deployment by opening the org: sf org open --target-org [your-org-alias]
 7. If any errors occur, display the detailed deployment logs and suggest fixes
 
 Provide clear status updates at each step and confirm successful deployment of all 4 custom objects, the flow, permission set, and sample data.
@@ -152,6 +164,8 @@ Provide clear status updates at each step and confirm successful deployment of a
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **kegLocationMap** LWC: lightning-map of Keg__c by account location, color-coded by fill (green/yellow/red/black for lost), marker popups (keg ID, style, account, days, reorder), filters (beer style, brewery, status, overdue), and summary stats (total kegs, reorder count, lost value).
 
 ```
 Create a Lightning Web Component named 'kegLocationMap' that displays an interactive visual dashboard:
@@ -177,15 +191,17 @@ Create the component with proper error handling, loading states, and accessibili
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore, creates README (BrewCycle - Keg Tracking, dev org/SDO setup, features), and pushes to a repo such as brewcycle-salesforce.
+
 ```
 Initialize a Git repository and push the BrewCycle project to GitHub:
 
 1. Initialize git in the project root: git init
-2. Create a comprehensive .gitignore file for Salesforce DX that excludes: .sfdx/, .sf/, node_modules/, coverage/, .vscode/, .idea/, *.log, .DS_Store, .localdevserver/, and any scratch org config files with sensitive data
-3. Create a README.md with project title 'BrewCycle - Craft Beer Keg Tracking System', description of the system, setup instructions for scratch orgs, and a features list highlighting keg tracking, automated reorder flows, and the interactive map dashboard
+2. Create a comprehensive .gitignore file for Salesforce DX that excludes: .sfdx/, .sf/, node_modules/, coverage/, .vscode/, .idea/, *.log, .DS_Store, .localdevserver/, and any local org config files with sensitive data
+3. Create a README.md with project title 'BrewCycle - Craft Beer Keg Tracking System', description of the system, setup instructions for dev org or SDO, and a features list highlighting keg tracking, automated reorder flows, and the interactive map dashboard
 4. Add all files: git add .
 5. Create initial commit: git commit -m 'Initial commit: BrewCycle keg tracking system with custom objects, flows, sample data, and interactive map LWC'
-6. Create a new GitHub repository named 'brewcycle-salesforce' with description: 'Salesforce DX project for craft beer keg tracking and distribution management'
+6. Create a new GitHub repository named 'brewcycle-salesforce' with description as given in the scenario
 7. Add the GitHub remote: git remote add origin [repository-url]
 8. Push to main branch: git push -u origin main
 9. Verify the push was successful and display the repository URL

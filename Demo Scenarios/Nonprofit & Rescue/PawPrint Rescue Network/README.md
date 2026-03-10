@@ -36,13 +36,15 @@ An interactive adoption gallery LWC showing available animals with photos, filte
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -59,6 +61,8 @@ Then open the `pawprint-rescue` folder in Cursor and proceed with Step 01.
 
 ## Step 01 — Custom Objects
 
+**What this prompt does:** Creates four custom objects—**Rescue_Animal__c**, **Foster_Home__c**, **Adoption_Application__c**, and **Medical_Record__c**—with fields for species, breed, temperament, status, foster capacity, applicant info, vet visits, and vaccinations. Adds a lookup from Rescue_Animal__c to Foster_Home__c (Current_Foster__c).
+
 Open Cursor Agent and paste:
 
 ```
@@ -69,6 +73,8 @@ Create four custom Salesforce objects for an animal rescue network: 1) Rescue_An
 
 ## Step 02 — Sample Data
 
+**What this prompt does:** Generates sample data: **12 rescue animals** (mixed species, statuses, temperaments), **5 foster homes**, **8 adoption applications** linked to animals, and **15 medical records** (procedures, vaccinations, costs). Links “In Foster” animals to foster homes.
+
 ```
 Create realistic sample data for PawPrint Rescue Network: 1) Create 12 Rescue_Animal__c records with diverse names like 'Biscuit', 'Luna', 'Chester', 'Muffin', 'Shadow', 'Peanut', 'Oliver', 'Daisy', 'Max', 'Willow', 'Thumper', 'Tweety' spanning Dogs, Cats, Rabbits, and one Bird. Mix ages from 6 months to 8 years, weights appropriate to species, varied temperaments, and statuses (6 Available, 4 In Foster, 2 Adopted). Include realistic special needs for 3 animals like 'Needs daily medication for arthritis' or 'Must be only pet'. 2) Create 5 Foster_Home__c records with realistic foster parent names, addresses in various neighborhoods, mix of apartments and houses, different max animal capacities (1-4), and varied experience levels. 3) Create 8 Adoption_Application__c records with realistic applicant names and contact info, mix of home types, some with yards, some with other pets described. Link 6 applications to specific available animals, with statuses: 3 Submitted, 3 Under Review, 2 Approved. 4) Create 15 Medical_Record__c records distributed across the animals, with realistic vet visits from the past 3 months, common procedures like 'Spay/Neuter', 'Dental Cleaning', 'Vaccination Update', appropriate vaccinations for species, and costs ranging from $50-$350. Link the 4 'In Foster' animals to appropriate foster homes.
 ```
@@ -76,6 +82,8 @@ Create realistic sample data for PawPrint Rescue Network: 1) Create 12 Rescue_An
 ---
 
 ## Step 03 — Permission Sets
+
+**What this prompt does:** Creates the **PawPrint_Admin** permission set with full CRUD, field-level security on all custom fields, and View All/Modify All on Rescue_Animal__c, Foster_Home__c, Adoption_Application__c, and Medical_Record__c.
 
 ```
 Create a permission set named PawPrint_Admin that grants full CRUD (Create, Read, Edit, Delete) access to all four custom objects: Rescue_Animal__c, Foster_Home__c, Adoption_Application__c, and Medical_Record__c. Include field-level security granting read and edit access to all custom fields on these objects. Also grant View All and Modify All permissions on these objects so admins can see and manage all records across the organization.
@@ -85,6 +93,8 @@ Create a permission set named PawPrint_Admin that grants full CRUD (Create, Read
 
 ## Step 04 — Flows & Automations
 
+**What this prompt does:** Builds two flows: **Quick_Adoption_Application** (screen flow—screens for contact info, home type, and animal picklist; creates Adoption_Application__c and shows confirmation) and **Animal_Status_Update** (record-triggered on Adoption_Application__c—when Status = Approved, sets the related Rescue_Animal__c to Adopted).
+
 ```
 Create a Salesforce Screen Flow called 'Quick_Adoption_Application' that allows potential adopters to submit an application. The flow should: 1) Start with a screen collecting Applicant_Name__c, Email__c, Phone__c with validation that all fields are required. 2) Second screen with Home_Type__c (radio buttons), Has_Yard__c (checkbox), and Other_Pets__c (text area for description). 3) Third screen displaying a picklist of available Rescue_Animal__c records (where Status__c = 'Available') showing Name and Species, allowing user to select which animal they're interested in. 4) Create the Adoption_Application__c record with all collected data, Status__c set to 'Submitted', and Application_Date__c set to today. 5) Final screen confirming submission with the application number and message 'Thank you! We'll review your application within 3 business days.' Also create a Record-Triggered Flow called 'Animal_Status_Update' that runs when Adoption_Application__c Status__c changes to 'Approved' and automatically updates the related Rescue_Animal__c Status__c to 'Adopted'.
 ```
@@ -93,13 +103,17 @@ Create a Salesforce Screen Flow called 'Quick_Adoption_Application' that allows 
 
 ## Step 05 — Deploy to Org
 
+**What this prompt does:** Runs deploy, assigns **PawPrint_Admin** to your user, and imports the sample data (plan.json) so the org has metadata and records ready to demo.
+
 ```
-Deploy all metadata to the Salesforce scratch org using SFDX CLI commands. First, verify the scratch org is active with 'sf org list'. Then deploy all custom objects, fields, permission sets, and flows using 'sf project deploy start --target-org [scratch-org-alias]'. After deployment succeeds, assign the PawPrint_Admin permission set to the current user with 'sf org assign permset --name PawPrint_Admin'. Finally, import the sample data by deploying the data folder with 'sf data import tree --plan data/plan.json'. Run 'sf org open' to verify deployment and view the org.
+Deploy all metadata to your Salesforce dev org or SDO using SFDX CLI commands. First, verify the org is active with 'sf org list'. Then deploy all custom objects, fields, permission sets, and flows using 'sf project deploy start --target-org [your-org-alias]'. After deployment succeeds, assign the PawPrint_Admin permission set to the current user with 'sf org assign permset --name PawPrint_Admin'. Finally, import the sample data by deploying the data folder with 'sf data import tree --plan data/plan.json'. Run 'sf org open' to verify deployment and view the org.
 ```
 
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **adoptionGallery** LWC: a responsive card grid of available animals with species filters (All, Dogs, Cats, Other), “Learn More” modal with full details and “Apply to Adopt” (launches Quick_Adoption_Application flow), and warm styling with photo placeholders.
 
 ```
 Create a Lightning Web Component called 'adoptionGallery' that displays an interactive grid of available rescue animals. The component should: 1) Use @wire to query Rescue_Animal__c records where Status__c = 'Available', retrieving Name, Species__c, Breed__c, Age_Years__c, Temperament__c, Special_Needs__c, and Photo_URL__c. 2) Display animals as cards in a responsive grid (3 columns on desktop, 2 on tablet, 1 on mobile) using lightning-card. Each card shows the animal's photo (or placeholder paw icon if no URL), name as the card title, species and breed as subtitle, age in years with a cake emoji, temperament with a heart emoji, and a 'Learn More' button. 3) Include filter buttons at the top for 'All', 'Dogs', 'Cats', and 'Other' that filter the displayed cards by species. Use lightning-button-group for filters with the active filter highlighted. 4) When 'Learn More' is clicked, show a modal with full details including special needs and a prominent 'Apply to Adopt' button that navigates to the Quick_Adoption_Application flow with the animal Id pre-filled. 5) Style the component with a warm color scheme (oranges and browns), rounded corners on cards, and smooth hover effects that slightly enlarge cards. Add an empty state with a friendly message and paw prints if no animals match the filter. Include the component's JS, HTML, XML meta file, and CSS with modern styling.
@@ -111,8 +125,10 @@ Create a Lightning Web Component called 'adoptionGallery' that displays an inter
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds a .gitignore for Salesforce projects, creates a README with setup and features, and pushes the repo to GitHub (e.g. pawprint-rescue-salesforce).
+
 ```
-Initialize a Git repository for the PawPrint Rescue Network Salesforce project and push to GitHub. First, run 'git init' in the project root directory. Create a .gitignore file that excludes: .sfdx/, .sf/, .vscode/, node_modules/, .DS_Store, *.log, .localdevserver/, and .eslintcache. Stage all files with 'git add .' and commit with message 'Initial commit: PawPrint Rescue Network - Animal rescue management system with custom objects, flows, and adoption gallery LWC'. Create a README.md with project title, description ('Salesforce application for animal rescue organizations to manage rescue animals, foster placements, medical records, and adoption applications'), setup instructions (scratch org creation, deployment commands), and key features list. Then create a new GitHub repository named 'pawprint-rescue-salesforce', set it as the remote origin with 'git remote add origin [repo-url]', and push with 'git push -u origin main'.
+Initialize a Git repository for the PawPrint Rescue Network Salesforce project and push to GitHub. First, run 'git init' in the project root directory. Create a .gitignore file that excludes: .sfdx/, .sf/, .vscode/, node_modules/, .DS_Store, *.log, .localdevserver/, and .eslintcache. Stage all files with 'git add .' and commit with message 'Initial commit: PawPrint Rescue Network - Animal rescue management system with custom objects, flows, and adoption gallery LWC'. Create a README.md with project title, description ('Salesforce application for animal rescue organizations to manage rescue animals, foster placements, medical records, and adoption applications'), setup instructions (dev org or SDO setup, deployment commands), and key features list. Then create a new GitHub repository named 'pawprint-rescue-salesforce', set it as the remote origin with 'git remote add origin [repo-url]', and push with 'git push -u origin main'.
 ```
 
 ---

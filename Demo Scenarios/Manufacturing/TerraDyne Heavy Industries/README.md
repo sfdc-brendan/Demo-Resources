@@ -36,13 +36,15 @@ A real-time equipment health dashboard showing a map of deployed units with live
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -59,6 +61,8 @@ Then open the `terradyne` folder in Cursor and proceed with Step 01.
 
 ## Step 01 — Custom Objects
 
+**What this prompt does:** Creates four custom objects—**Equipment_Unit__c**, **Diagnostic_Alert__c**, **Field_Service_Request__c**, and **Parts_Inventory__c**—with fields for serial number, model, battery, GPS, operational hours, alert type/severity (master-detail to Equipment), request number/priority/technician/parts/status, and part number/quantity/warehouse/compatible models.
+
 Open Cursor Agent and paste:
 
 ```
@@ -69,6 +73,8 @@ Create four custom Salesforce objects for TerraDyne Heavy Industries manufacturi
 
 ## Step 02 — Sample Data
 
+**What this prompt does:** Generates sample data: **8 equipment units** (excavators, tractors, dozers across global sites), **12 diagnostic alerts** (Critical/High/Medium, Open/Resolved), **6 field service requests** with technicians and parts, and **15 parts inventory** records (warehouses, quantities, prices).
+
 ```
 Create realistic sample data for TerraDyne Heavy Industries: 1) Create 8 Equipment_Unit__c records with serial numbers like TDX-2024-AU-0147, TDX-2024-CL-0089, etc., distributed across sites like 'Mt. Whaleback Iron Ore Mine - Australia', 'Escondida Copper Mine - Chile', 'Oyu Tolgoi - Mongolia', 'Powder River Basin - Wyoming'. Mix models (4 excavators, 2 tractors, 2 dozers) with varying battery levels (45-98%), operational hours (1200-8500), and statuses. Include realistic GPS coordinates for each site. 2) Create 12 Diagnostic_Alert__c records linked to various equipment units - include 3 Critical alerts (Hydraulic Failure, Critical Stop), 4 High severity (Battery Warning, Overheating), and 5 Medium/Low alerts. Use timestamps from the past 30 days. Set 7 as Resolved, 5 as Open or In Progress. 3) Create 6 Field_Service_Request__c records linked to equipment and alerts, with technician names like 'Sarah Chen', 'Marcus Rodriguez', 'Yuki Tanaka'. Include realistic parts requirements like 'Hydraulic pump assembly, 12x hydraulic seals, filter kit'. Mix statuses from New to Completed. 4) Create 15 Parts_Inventory__c records for components like 'Solar Panel Array - 500W', 'Lithium Battery Module - 100kWh', 'Hydraulic Pump Assembly', 'Autonomous Navigation Sensor Suite', 'Track Roller Assembly', etc. Distribute inventory across warehouses with realistic quantities (0-45 units) and prices ($500-$85,000).
 ```
@@ -76,6 +82,8 @@ Create realistic sample data for TerraDyne Heavy Industries: 1) Create 8 Equipme
 ---
 
 ## Step 03 — Permission Sets
+
+**What this prompt does:** Creates the **TerraDyne_Admin** permission set with full CRUD, View All/Modify All, and “View All Data”/“Modify All Data” on Equipment_Unit__c, Diagnostic_Alert__c, Field_Service_Request__c, and Parts_Inventory__c.
 
 ```
 Create a permission set called TerraDyne_Admin that grants full CRUD (Create, Read, Edit, Delete) permissions to all four custom objects: Equipment_Unit__c, Diagnostic_Alert__c, Field_Service_Request__c, and Parts_Inventory__c. Include View All and Modify All permissions for each object. Grant access to all custom fields on these objects. Add 'View All Data' and 'Modify All Data' system permissions. Label it 'TerraDyne Administrator Access' with description 'Full access to all TerraDyne equipment management objects and fields for admin users and service managers.'
@@ -85,6 +93,8 @@ Create a permission set called TerraDyne_Admin that grants full CRUD (Create, Re
 
 ## Step 04 — Flows & Automations
 
+**What this prompt does:** Builds the **Emergency_Service_Dispatch** screen flow: triggered when a Diagnostic_Alert__c is created with Severity = Critical; creates Field_Service_Request__c (Urgent), checks Parts_Inventory__c availability, shows a confirmation screen, and sends an email alert to dispatch.
+
 ```
 Create a Salesforce Screen Flow called 'Emergency_Service_Dispatch' that triggers when a Diagnostic_Alert__c record is created with Severity__c = 'Critical'. The flow should: 1) Query the related Equipment_Unit__c to get deployment site and GPS coordinates. 2) Automatically create a Field_Service_Request__c record with Priority__c set to 'Urgent', Request_Status__c set to 'New', and populate the Equipment_Unit__c and Related_Alert__c lookups. 3) Query Parts_Inventory__c to check if critical parts (hydraulic components, battery modules) are available at the nearest warehouse. 4) Display a screen showing the created service request details, estimated distance to site, and parts availability status. 5) Send an email alert to the service dispatch team (use a hardcoded email for demo) with subject 'CRITICAL: Equipment Down at {Site_Name}' including equipment serial number, alert type, GPS coordinates, and parts availability. Include decision elements for parts availability and assign different technicians based on warehouse location.
 ```
@@ -93,13 +103,17 @@ Create a Salesforce Screen Flow called 'Emergency_Service_Dispatch' that trigger
 
 ## Step 05 — Deploy to Org
 
+**What this prompt does:** Runs deploy, assigns **TerraDyne_Admin**, imports sample data (sample-data-plan.json), and verifies the four custom objects are present in the org.
+
 ```
-Deploy all TerraDyne metadata to the Salesforce scratch org using SFDX commands. First, authenticate to the scratch org with 'sf org login web --alias TerraOrg'. Verify connection with 'sf org display --target-org TerraOrg'. Push all source metadata with 'sf project deploy start --target-org TerraOrg'. After successful deployment, assign the TerraDyne_Admin permission set to the default user with 'sf org assign permset --name TerraDyne_Admin --target-org TerraOrg'. Finally, import the sample data using 'sf data tree import --plan data/sample-data-plan.json --target-org TerraOrg'. Verify deployment by listing custom objects with 'sf sobject list --sobject-type custom --target-org TerraOrg' and confirm all four objects appear.
+Deploy all TerraDyne metadata to your Salesforce dev org or SDO. Authenticate with 'sf org login web --alias TerraOrg' if needed. Verify connection with 'sf org display --target-org TerraOrg'. Push all source metadata with 'sf project deploy start --target-org TerraOrg'. After successful deployment, assign the TerraDyne_Admin permission set to the default user with 'sf org assign permset --name TerraDyne_Admin --target-org TerraOrg'. Finally, import the sample data using 'sf data tree import --plan data/sample-data-plan.json --target-org TerraOrg'. Verify deployment by listing custom objects with 'sf sobject list --sobject-type custom --target-org TerraOrg' and confirm all four objects appear.
 ```
 
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **equipmentHealthDashboard** LWC: cards per equipment unit (model, serial, site, battery ring, operational hours, status), summary header (fleet count, units needing attention, average battery), model/site filter, and modal with Diagnostic_Alert__c history and “Create Service Request” navigation.
 
 ```
 Create a Lightning Web Component called 'equipmentHealthDashboard' for TerraDyne that displays a visually impressive real-time equipment monitoring interface. The component should query all Equipment_Unit__c records using @wire and display them as interactive cards in a responsive grid layout. Each card shows: equipment model name with custom icons (excavator/tractor/dozer), serial number, deployment site, a circular progress indicator for battery level (green >70%, yellow 40-70%, red <40%), operational hours with a small bar chart, and current status badge with color coding. Include a summary header showing total fleet count, units needing attention (battery <50% or status=Maintenance), and average battery level across fleet. Add a filter dropdown to show only specific models or sites. When a card is clicked, display a modal with full equipment details, recent Diagnostic_Alert__c history (last 5 alerts with timestamps and severity), and a 'Create Service Request' button that navigates to the Field_Service_Request__c creation form with Equipment_Unit__c pre-populated. Use Lightning Design System styling, lightning-card, lightning-badge, lightning-icon, and custom CSS for the battery level rings and status indicators. Make it look like a modern industrial IoT dashboard with dark mode aesthetics, sharp borders, and data visualization.
@@ -111,8 +125,10 @@ Create a Lightning Web Component called 'equipmentHealthDashboard' for TerraDyne
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore for Salesforce DX, creates README (TerraDyne description, dev org/SDO setup), and pushes to a repo such as terradyne-equipment-mgmt.
+
 ```
-Initialize a new Git repository for the TerraDyne Salesforce project and push to GitHub. First, run 'git init' in the project root. Create a comprehensive .gitignore file for Salesforce DX projects that excludes: .sfdx/, .sf/, .localdevserver/, .vscode/, node_modules/, coverage/, *.log, .DS_Store, .org metadata, and any scratch org config files with credentials. Stage all files with 'git add .' and commit with message 'Initial commit: TerraDyne Heavy Industries equipment management system - custom objects, flows, sample data, and LWC dashboard'. Create a new GitHub repository named 'terradyne-equipment-mgmt' (make it public for demo purposes). Add remote with 'git remote add origin https://github.com/[username]/terradyne-equipment-mgmt.git' and push with 'git push -u origin main'. Add a README.md file with project description: 'TerraDyne Heavy Industries - Salesforce Equipment Management System. Tracks autonomous mining equipment fleet with real-time diagnostics, IoT sensor integration, automated service dispatch, and parts inventory management. Built with custom objects, flows, and Lightning Web Components.' Include setup instructions for scratch org creation and deployment.
+Initialize a new Git repository for the TerraDyne Salesforce project and push to GitHub. First, run 'git init' in the project root. Create a comprehensive .gitignore file for Salesforce DX projects that excludes: .sfdx/, .sf/, .localdevserver/, .vscode/, node_modules/, coverage/, *.log, .DS_Store, .org metadata, and any local org config files with credentials. Stage all files with 'git add .' and commit with message 'Initial commit: TerraDyne Heavy Industries equipment management system - custom objects, flows, sample data, and LWC dashboard'. Create a new GitHub repository named 'terradyne-equipment-mgmt' (make it public for demo purposes). Add remote with 'git remote add origin https://github.com/[username]/terradyne-equipment-mgmt.git' and push with 'git push -u origin main'. Add a README.md file with project description and include setup instructions for dev org or SDO and deployment.
 ```
 
 ---

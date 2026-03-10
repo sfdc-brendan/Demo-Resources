@@ -36,13 +36,15 @@ An interactive map-based LWC showing active field trials across the globe with c
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -58,6 +60,8 @@ Then open the `verdant-genome` folder in Cursor and proceed with Step 01.
 ---
 
 ## Step 01 — Custom Objects
+
+**What this prompt does:** Creates four custom objects—**Crop_Variant__c**, **Field_Trial__c**, **Farm_Partner__c**, and **Regulatory_Submission__c**—with fields for variant name, gene-edit technique, drought tolerance, yield, development stage; trial name, dates, acres, soil type, yield, GPS (master-detail to Crop_Variant, lookup to Farm_Partner); farm contact, acres, crops, country, partnership tier; and submission body, status, risk assessment, comment period.
 
 Open Cursor Agent and paste:
 
@@ -78,6 +82,8 @@ Ensure all objects have appropriate relationships and standard Salesforce object
 ---
 
 ## Step 02 — Sample Data
+
+**What this prompt does:** Generates sample data: **5 crop variants** (e.g. VG-Wheat-DR-447, VG-Corn-XD-892 with drought tolerance and yield), **6 farm partners** (acres, crops, tiers), **8 field trials** (linked to variants and farms, varied statuses), and **4 regulatory submissions** (USDA, EPA, etc.).
 
 ```
 Create realistic sample data for Verdant Genome Labs with these specific records:
@@ -117,6 +123,8 @@ Make all data scientifically plausible and include detailed notes fields with re
 
 ## Step 03 — Permission Sets
 
+**What this prompt does:** Creates the **Verdant_Genome_Admin** permission set with full CRUD, View All/Modify All, and field access on Crop_Variant__c, Field_Trial__c, Farm_Partner__c, and Regulatory_Submission__c.
+
 ```
 Create a Salesforce permission set called 'Verdant_Genome_Admin' that grants the following permissions:
 
@@ -132,6 +140,8 @@ Generate the permission set XML metadata file in the correct Salesforce DX forma
 ---
 
 ## Step 04 — Flows & Automations
+
+**What this prompt does:** Builds **Field_Trial_Performance_Alert** (scheduled daily—evaluates trial performance) and **Regulatory_Submission_Reminder** (record-triggered) flows so trial and regulatory data are automated.
 
 ```
 Create a Salesforce Screen Flow called 'Field_Trial_Performance_Alert' that automates trial monitoring for Verdant Genome Labs:
@@ -154,15 +164,17 @@ Generate the Flow metadata XML files in the correct Salesforce DX structure unde
 
 ## Step 05 — Deploy to Org
 
-```
-Deploy all Verdant Genome Labs metadata to the Salesforce scratch org using SFDX:
+**What this prompt does:** Runs deploy, assigns **Verdant_Genome_Admin**, and verifies deployment so the four objects and flows are available in the org.
 
-1. First, verify the project structure is correct with: sfdx force:source:status
+```
+Deploy all Verdant Genome Labs metadata to your Salesforce dev org or SDO using SFDX:
+
+1. First, verify the project structure is correct with: sf project deploy validate or sfdx force:source:status
 2. Validate that all custom objects, fields, permission sets, and flows are present in force-app/main/default/
-3. Run a pre-deployment validation: sfdx force:source:deploy --checkonly --sourcepath force-app/main/default --targetusername [scratch-org-alias]
-4. If validation passes, execute the full deployment: sfdx force:source:deploy --sourcepath force-app/main/default --targetusername [scratch-org-alias]
-5. After deployment, assign the Verdant_Genome_Admin permission set to the scratch org user: sfdx force:user:permset:assign --permsetname Verdant_Genome_Admin --targetusername [scratch-org-alias]
-6. Verify deployment by opening the org: sfdx force:org:open --targetusername [scratch-org-alias]
+3. Run a pre-deployment validation: sf project deploy validate --target-org [your-org-alias] (or sfdx force:source:deploy --checkonly)
+4. If validation passes, execute the full deployment: sf project deploy start --target-org [your-org-alias]
+5. After deployment, assign the Verdant_Genome_Admin permission set to your user: sf org assign permset --name Verdant_Genome_Admin
+6. Verify deployment by opening the org: sf org open
 7. If any errors occur, capture the deployment log and display specific failure details
 
 Provide clear console output for each step showing success/failure status.
@@ -171,6 +183,8 @@ Provide clear console output for each step showing success/failure status.
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **trialPerformanceMap** LWC: lightning-map of Field_Trial__c by GPS, color-coded by yield (green/yellow/red), popups with trial and variant details, filters (crop, status, performance), and summary stats (active trials, drought score, acres, top variant).
 
 ```
 Build a Lightning Web Component called 'trialPerformanceMap' for Verdant Genome Labs that displays an interactive global map of field trials:
@@ -212,27 +226,14 @@ Generate complete LWC bundle: HTML template, JavaScript controller with SOQL que
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore, creates README (Verdant Genome Labs - Field Trial Management, dev org/SDO deployment), and pushes to a repo such as verdant-genome-salesforce.
+
 ```
 Initialize a Git repository for the Verdant Genome Labs Salesforce project and push to GitHub:
 
 1. Initialize git in the project directory: git init
-2. Create a comprehensive .gitignore file that excludes:
-   - .sfdx/ directory
-   - .vscode/ directory
-   - node_modules/
-   - .DS_Store
-   - *.log
-   - .localdevserver/
-   - .sf/
-   - coverage/
-   - .eslintcache
-3. Create a README.md file with:
-   - Project title: 'Verdant Genome Labs - Salesforce Field Trial Management System'
-   - Description: Project tracks gene-edited crop variants, field trials, farm partnerships, and regulatory submissions
-   - Installation instructions for scratch org deployment
-   - Object schema overview with relationship diagram description
-   - LWC component usage instructions
-   - Contributing guidelines
+2. Create a comprehensive .gitignore file that excludes: .sfdx/, .vscode/, node_modules/, .DS_Store, *.log, .localdevserver/, .sf/, coverage/, .eslintcache
+3. Create a README.md file with: project title 'Verdant Genome Labs - Salesforce Field Trial Management System', description, installation instructions for dev org or SDO deployment, object schema overview, LWC usage instructions, and contributing guidelines
 4. Stage all files: git add .
 5. Create initial commit: git commit -m 'Initial commit: Verdant Genome Labs Salesforce DX project with custom objects, flows, LWC trial map, and sample data'
 6. Create a new GitHub repository called 'verdant-genome-salesforce'

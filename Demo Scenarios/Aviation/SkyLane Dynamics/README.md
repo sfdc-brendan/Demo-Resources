@@ -36,13 +36,15 @@ A real-time dashboard showing a map of Miami with all 47 air taxis in flight, ba
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox with Einstein GenAI enabled (API 60.0+)
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox with Einstein GenAI enabled (API 60.0+)
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -58,6 +60,8 @@ Then open the `skylane-dynamics` folder in Cursor and proceed with Step 01.
 ---
 
 ## Step 01 — Custom Objects
+
+**What this prompt does:** Creates four custom objects—**Air_Taxi__c**, **Skyport__c**, **Flight_Route__c**, and **Maintenance_Alert__c**—with fields for tail number, battery, status, GPS, skyport pads/elevation/coordinates, route origin/destination/aircraft/datetimes, and alert type/severity/resolution. Includes master-detail and lookups as specified.
 
 Open Cursor Agent and paste:
 
@@ -79,6 +83,8 @@ Create all master-detail and lookup relationships as specified. Make all objects
 
 ## Step 02 — Sample Data
 
+**What this prompt does:** Generates sample data: **12 air taxis** (tail numbers, battery, status, Miami coordinates), **8 skyports** (e.g. MIA-DT-01, Brickell, Design District), **18 flight routes** (completed, in flight, scheduled), and **5 maintenance alerts** (Critical/Medium/Low, various resolution statuses).
+
 ```
 Create realistic sample data for the SkyLane Dynamics air taxi network:
 
@@ -95,6 +101,8 @@ Create realistic sample data for the SkyLane Dynamics air taxi network:
 
 ## Step 03 — Permission Sets
 
+**What this prompt does:** Creates the **SkyLane_Command_Center_Admin** permission set with full CRUD, View All/Modify All, and API access on Air_Taxi__c, Skyport__c, Flight_Route__c, and Maintenance_Alert__c.
+
 ```
 Create a Salesforce permission set called SkyLane_Command_Center_Admin that grants full read, create, edit, and delete access to all four custom objects (Air_Taxi__c, Skyport__c, Flight_Route__c, Maintenance_Alert__c) and all their custom fields. Include View All and Modify All permissions on these objects. Also grant access to create, edit, and delete records via API. Add the standard permissions for accessing Lightning Experience, running reports, and viewing dashboards. Set the permission set license to Salesforce if required.
 ```
@@ -102,6 +110,8 @@ Create a Salesforce permission set called SkyLane_Command_Center_Admin that gran
 ---
 
 ## Step 04 — Flows & Automations
+
+**What this prompt does:** Builds **Critical_Maintenance_Alert_Handler** (record-triggered on Maintenance_Alert__c—on Critical + Open/Investigating, sets Air_Taxi__c to Maintenance, sends email, creates Task) and **Low_Battery_Auto_Reroute** (scheduled flow—creates Maintenance_Alert__c for aircraft In Flight with battery &lt; 20%).
 
 ```
 Create a Salesforce record-triggered Flow called 'Critical_Maintenance_Alert_Handler' that triggers when a Maintenance_Alert__c record is created OR updated. Add decision criteria: if Severity__c equals 'Critical' AND Resolution_Status__c equals 'Open' or 'Investigating', then execute these actions:
@@ -117,13 +127,17 @@ Also create a second Flow called 'Low_Battery_Auto_Reroute' that runs every 5 mi
 
 ## Step 05 — Deploy to Org
 
+**What this prompt does:** Runs deploy, assigns **SkyLane_Command_Center_Admin**, imports sample data in order (Skyports → Air Taxis → Flight Routes → Maintenance Alerts), and opens the org to verify.
+
 ```
-Deploy all metadata to the Salesforce scratch org. First, ensure the default scratch org is set by running 'sf org display'. Then use 'sf project deploy start --target-org [alias]' to deploy all custom objects, fields, permission sets, and flows from the force-app/main/default directory. After deployment, run 'sf org assign permset --name SkyLane_Command_Center_Admin' to assign the permission set to the default user. Then use 'sf data import tree --plan data/sample-data-plan.json' to load all sample records in the correct order (Skyports first, then Air Taxis, then Flight Routes, then Maintenance Alerts to respect lookup relationships). Finally, run 'sf org open' to verify the deployment in the browser. Add error handling to check for deployment failures and log any field-level or object-level security issues.
+Deploy all metadata to your Salesforce dev org or SDO. First, ensure your target org is set by running 'sf org display'. Then use 'sf project deploy start --target-org [your-org-alias]' to deploy all custom objects, fields, permission sets, and flows from the force-app/main/default directory. After deployment, run 'sf org assign permset --name SkyLane_Command_Center_Admin' to assign the permission set to the default user. Then use 'sf data import tree --plan data/sample-data-plan.json' to load all sample records in the correct order (Skyports first, then Air Taxis, then Flight Routes, then Maintenance Alerts to respect lookup relationships). Finally, run 'sf org open' to verify the deployment in the browser. Add error handling to check for deployment failures and log any field-level or object-level security issues.
 ```
 
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **airTaxiCommandCenter** LWC: grid of air taxi cards (tail number, status, battery with green/yellow/red), summary stats (In Flight, Maintenance, Critical Alerts), status filter, refresh, and Critical alerts section with NavigationMixin to record pages.
 
 ```
 Create a Lightning Web Component called 'airTaxiCommandCenter' that serves as a real-time operations dashboard. The component should:
@@ -147,8 +161,10 @@ Use modern JavaScript (ES6+), proper error handling, and add @api properties for
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore (e.g. .sfdx/, .sf/, .vscode/), stages metadata and config, creates initial commit and README (overview, dev org/SDO setup, deployment), and pushes to a repo such as skylane-dynamics-salesforce.
+
 ```
-Initialize a new Git repository for this SkyLane Dynamics Salesforce project and push it to GitHub. First, run 'git init' in the project root directory. Create a comprehensive .gitignore file that excludes Salesforce DX scratch org files (.sfdx/), IDE files (.vscode/, .idea/), Mac system files (.DS_Store), node_modules/, and any local environment configs. Stage all Salesforce metadata with 'git add force-app/ config/ scripts/ data/ .gitignore README.md'. Create an initial commit with message 'Initial commit: SkyLane Dynamics air taxi command center - custom objects, flows, LWC dashboard, and sample data'. Then create a new GitHub repository called 'skylane-dynamics-salesforce' with description 'Autonomous air taxi fleet management system built on Salesforce - track aircraft status, skyport capacity, flight routes, and maintenance alerts in real-time'. Use 'gh repo create' or provide manual instructions to create the repo via GitHub CLI or web interface, then 'git remote add origin' with the repo URL and 'git push -u origin main'. Include instructions to create a README.md with project overview, setup instructions for scratch org creation, data import steps, and deployment commands.
+Initialize a new Git repository for this SkyLane Dynamics Salesforce project and push it to GitHub. First, run 'git init' in the project root directory. Create a comprehensive .gitignore file that excludes: .sfdx/, .sf/, .vscode/, .idea/, .DS_Store, node_modules/, and any local environment configs. Stage all Salesforce metadata with 'git add force-app/ config/ scripts/ data/ .gitignore README.md'. Create an initial commit with message 'Initial commit: SkyLane Dynamics air taxi command center - custom objects, flows, LWC dashboard, and sample data'. Then create a new GitHub repository called 'skylane-dynamics-salesforce' with description 'Autonomous air taxi fleet management system built on Salesforce - track aircraft status, skyport capacity, flight routes, and maintenance alerts in real-time'. Use 'gh repo create' or add the remote with 'git remote add origin' and the repo URL, then 'git push -u origin main'. Include instructions to create a README.md with project overview, setup instructions for dev org or SDO, data import steps, and deployment commands.
 ```
 
 ---

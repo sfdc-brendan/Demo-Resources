@@ -37,13 +37,15 @@ An interactive mission control dashboard showing upcoming lunar expeditions with
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -60,6 +62,8 @@ Then open the `lunar-basecamp` folder in Cursor and proceed with Step 01.
 
 ## Step 01 — Custom Objects
 
+**What this prompt does:** Creates custom objects for lunar expeditions—**Lunar_Explorer__c**, **Gear_Item__c**, **Expedition_Booking__c**, **Safety_Certification__c**, and **Expedition_Gear__c** (junction linking bookings to gear)—with fields for explorer info, gear inventory, booking launch/return/site/status/cost, certification type/dates, and junction quantity. Relationships and details are in the prompt below.
+
 Open Cursor Agent and paste:
 
 ```
@@ -70,6 +74,8 @@ Create these Salesforce custom objects for Lunar Basecamp Outfitters: 1) Lunar_E
 
 ## Step 02 — Sample Data
 
+**What this prompt does:** Generates sample data for **Lunar_Explorer__c**, **Gear_Item__c**, **Expedition_Booking__c** (launch/return dates, landing sites, status), **Safety_Certification__c** (linked to explorers), and **Expedition_Gear__c** junction records so the expedition dashboard and map have data.
+
 ```
 Create realistic sample data for Lunar Basecamp Outfitters: 1) Create 5 Lunar_Explorer__c records with names like 'Sarah Chen', 'Marcus Rodriguez', 'Yuki Tanaka', 'Dmitri Volkov', 'Amara Okonkwo' with varying EVA_Hours__c (50-500), Certification_Level__c ranging from Novice to Master, and Medical_Clearance_Date__c within the last 6 months. 2) Create 15 Gear_Item__c records including items like 'Apollo Heritage Pressure Suit X7', 'CraterGrip Magnetic Boots', 'HorizonLink Comm Headset', 'TitanThread Tether Kit', 'LunarBreath O2 System', 'ShackletonPro Ice Anchor Set' with realistic serial numbers like LBO-2024-001, varying statuses, rental rates between $500-$5000/day, and purchase prices between $15000-$250000. 3) Create 8 Expedition_Booking__c records with expedition names like 'Tycho Shadow Traverse', 'Mare Tranquillitatis Heritage Walk', 'Shackleton Ice Core Expedition', with launch dates spread over the next 6 months, linking to the explorers created, and total costs between $50000-$500000. 4) Create 12 Safety_Certification__c records linking explorers to various certifications, with some expired and some current. 5) Create Expedition_Gear__c junction records linking gear items to expeditions with realistic quantities.
 ```
@@ -77,6 +83,8 @@ Create realistic sample data for Lunar Basecamp Outfitters: 1) Create 5 Lunar_Ex
 ---
 
 ## Step 03 — Permission Sets
+
+**What this prompt does:** Creates the **Lunar_Basecamp_Admin** permission set with full CRUD and access on Lunar_Explorer__c, Gear_Item__c, Expedition_Booking__c, Safety_Certification__c, and Expedition_Gear__c.
 
 ```
 Create a permission set called Lunar_Basecamp_Admin that grants full CRUD (Create, Read, Edit, Delete) access to all custom objects: Lunar_Explorer__c, Gear_Item__c, Expedition_Booking__c, Safety_Certification__c, and Expedition_Gear__c. Include View All and Modify All permissions for each object. Also grant access to all custom fields on these objects including all picklist values, lookups, and master-detail relationships.
@@ -86,6 +94,8 @@ Create a permission set called Lunar_Basecamp_Admin that grants full CRUD (Creat
 
 ## Step 04 — Flows & Automations
 
+**What this prompt does:** Builds the **Pre_Expedition_Safety_Check** record-triggered flow: when an Expedition_Booking__c is confirmed (or similar), validates Safety_Certification__c compliance and blocks or flags the booking if requirements aren’t met.
+
 ```
 Create a Salesforce Screen Flow called 'Pre_Expedition_Safety_Check' that runs when an Expedition_Booking__c Status changes to 'Confirmed'. The flow should: 1) Query all Safety_Certification__c records for the linked Lunar_Explorer__c. 2) Check if they have valid (non-expired) certifications for Basic EVA, Crater Navigation, and Solar Radiation Protocol. 3) Check if their Medical_Clearance_Date__c is within the last 90 days. 4) If any checks fail, send an email alert to the expedition coordinator with details of missing/expired certifications and update a custom field Compliance_Status__c (Picklist: Cleared, Pending, Blocked) on the Expedition_Booking__c to 'Blocked'. 5) If all checks pass, set Compliance_Status__c to 'Cleared' and create a Task for gear assignment. Make sure to add the Compliance_Status__c field to Expedition_Booking__c as part of this prompt.
 ```
@@ -94,13 +104,17 @@ Create a Salesforce Screen Flow called 'Pre_Expedition_Safety_Check' that runs w
 
 ## Step 05 — Deploy to Org
 
+**What this prompt does:** Runs deploy, assigns **Lunar_Basecamp_Admin**, and imports sample data (sample-data-plan.json) so the five objects and expedition/gear data are in the org for the dashboard.
+
 ```
-Deploy all metadata to the Salesforce scratch org using these SFDX commands: First run 'sfdx force:source:status' to verify all local changes are tracked. Then run 'sfdx force:source:deploy -p force-app/main/default -u [scratch-org-alias] --wait 10' to deploy all custom objects, fields, flows, and permission sets. After successful deployment, run 'sfdx force:data:tree:import -p data/sample-data-plan.json -u [scratch-org-alias]' to load the sample data. Finally run 'sfdx force:user:permset:assign -n Lunar_Basecamp_Admin -u [scratch-org-alias]' to assign the permission set to the current user. Include error handling to check deployment status and rollback if needed.
+Deploy all metadata to your Salesforce dev org or SDO using these SFDX commands: First run 'sf project deploy validate' or 'sfdx force:source:status' to verify all local changes are tracked. Then run 'sf project deploy start --target-org [your-org-alias]' or 'sfdx force:source:deploy -p force-app/main/default -u [your-org-alias] --wait 10' to deploy all custom objects, fields, flows, and permission sets. After successful deployment, run 'sf data import tree --plan data/sample-data-plan.json' to load the sample data. Finally run 'sf org assign permset --name Lunar_Basecamp_Admin' to assign the permission set to the current user. Include error handling to check deployment status and rollback if needed.
 ```
 
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **lunarExpeditionDashboard** LWC: expedition cards (explorer, launch date, countdown, landing site, compliance badge, gear count), lightning-map of landing coordinates, Chart.js for bookings by month/site, dark space theme, refresh and auto-refresh.
 
 ```
 Create a Lightning Web Component called 'lunarExpeditionDashboard' that displays an interactive mission control view. The component should: 1) Query and display all Expedition_Booking__c records with Status 'Confirmed' or 'In Progress' in a visually striking card layout. 2) Each expedition card shows: expedition name, explorer name with photo placeholder, launch date with countdown timer, landing site with a small moon surface icon, compliance status badge (green/yellow/red), and total gear items assigned. 3) Include a lightning-map component showing landing coordinates for each expedition (use approximate coordinates for lunar locations). 4) Add a chart using Chart.js or Lightning Charts showing expedition bookings by month and by landing site. 5) Use Salesforce Lightning Design System (SLDS) with a dark space-themed color scheme (dark blues, silvers, accent orange for alerts). 6) Make it responsive for desktop and tablet. 7) Add a refresh button and auto-refresh every 30 seconds. Include the HTML, JavaScript, and meta.xml files with proper API version and exposure settings for Lightning App Builder.
@@ -112,8 +126,10 @@ Create a Lightning Web Component called 'lunarExpeditionDashboard' that displays
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore, creates README (Lunar Basecamp Outfitters - expeditions, gear, certifications; dev org/SDO setup), and pushes to a repo such as lunar-basecamp-outfitters-sfdc.
+
 ```
-Initialize a git repository in the current Salesforce DX project directory with these steps: 1) Run 'git init' to create the repo. 2) Create a .gitignore file that excludes: .sfdx/, .sf/, .vscode/, node_modules/, coverage/, .DS_Store, *.log, .localdevserver/, and any scratch org config files. 3) Run 'git add .' to stage all project files. 4) Create an initial commit with message 'Initial commit: Lunar Basecamp Outfitters Salesforce org with custom objects, flows, and expedition dashboard LWC'. 5) Create a new repository on GitHub called 'lunar-basecamp-outfitters-sfdc' with description 'Salesforce implementation for Lunar Basecamp Outfitters - managing lunar hiking expeditions, gear inventory, and explorer certifications'. 6) Add the GitHub remote with 'git remote add origin [repository-url]'. 7) Push to GitHub with 'git push -u origin main'. Include a README.md file with project overview, setup instructions for scratch org creation, and deployment steps.
+Initialize a git repository in the current Salesforce DX project directory with these steps: 1) Run 'git init' to create the repo. 2) Create a .gitignore file that excludes: .sfdx/, .sf/, .vscode/, node_modules/, coverage/, .DS_Store, *.log, .localdevserver/, and any local org config files. 3) Run 'git add .' to stage all project files. 4) Create an initial commit with message 'Initial commit: Lunar Basecamp Outfitters Salesforce org with custom objects, flows, and expedition dashboard LWC'. 5) Create a new repository on GitHub called 'lunar-basecamp-outfitters-sfdc' with description 'Salesforce implementation for Lunar Basecamp Outfitters - managing lunar hiking expeditions, gear inventory, and explorer certifications'. 6) Add the GitHub remote with 'git remote add origin [repository-url]'. 7) Push to GitHub with 'git push -u origin main'. Include a README.md file with project overview, setup instructions for dev org or SDO, and deployment steps.
 ```
 
 ---

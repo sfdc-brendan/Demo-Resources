@@ -36,13 +36,15 @@ A visual 3D room acoustic heatmap showing frequency response across different zo
 
 ## Prerequisites
 
-- A Salesforce scratch org or sandbox with Einstein GenAI enabled (API 60.0+)
+- A Salesforce dev org, SDO (Simple Demo Org), or sandbox with Einstein GenAI enabled (API 60.0+)
 - Salesforce CLI (`sf`) installed and authenticated
 - Cursor IDE
 
 ---
 
 ## Step 00 — Project Scaffold (run in terminal before opening Cursor)
+
+**What this step does:** Creates a new SFDX project folder and sets your target org so Cursor and the Salesforce CLI know where to deploy. Run these commands in your terminal (not in Cursor yet).
 
 Run these commands in your terminal to create the SFDX project and set your target org:
 
@@ -58,6 +60,8 @@ Then open the `resonance-labs` folder in Cursor and proceed with Step 01.
 ---
 
 ## Step 01 — Custom Objects
+
+**What this prompt does:** Creates custom objects for the audiophile scenario—**Speaker_System__c**, **Acoustic_Profile__c**, **Installation_Project__c**, and **Tuning_Session__c**—with fields for systems, profiles, project stage/value/account, and session scores/notes (and relationships as specified in the prompt).
 
 Open Cursor Agent and paste:
 
@@ -78,6 +82,8 @@ Make sure all objects have proper plural labels and are set up with all standard
 ---
 
 ## Step 02 — Sample Data
+
+**What this prompt does:** Generates sample data for **Speaker_System__c**, **Acoustic_Profile__c**, **Installation_Project__c** (e.g. Quoted, Scheduled, In Progress, Completed), and **Tuning_Session__c** with before/after scores and satisfaction so the dashboard has data to display.
 
 ```
 Create realistic sample data for Resonance Labs:
@@ -114,6 +120,8 @@ Create realistic sample data for Resonance Labs:
 
 ## Step 03 — Permission Sets
 
+**What this prompt does:** Creates the **Resonance_Labs_Admin** permission set with full CRUD, View All/Modify All, and field access on Speaker_System__c, Acoustic_Profile__c, Installation_Project__c, and Tuning_Session__c.
+
 ```
 Create a Salesforce permission set called Resonance_Labs_Admin that grants full CRUD access (Read, Create, Edit, Delete) to these custom objects: Speaker_System__c, Acoustic_Profile__c, Installation_Project__c, and Tuning_Session__c. Also grant View All and Modify All permissions on these objects. Include permissions to view and edit all standard fields and all custom fields on these objects. Add the System Administrator profile level access for these custom objects.
 ```
@@ -121,6 +129,8 @@ Create a Salesforce permission set called Resonance_Labs_Admin that grants full 
 ---
 
 ## Step 04 — Flows & Automations
+
+**What this prompt does:** Builds the **Generate_AI_Tuning_Recommendation** screen flow: launched from Tuning_Session__c or Installation_Project__c; uses Einstein GenAI for tuning recommendations and updates the session/project with the result.
 
 ```
 Create a Salesforce Screen Flow called 'Generate_AI_Tuning_Recommendation' that does the following:
@@ -146,25 +156,29 @@ Make the flow available for installation project record pages and the App Launch
 
 ## Step 05 — Deploy to Org
 
+**What this prompt does:** Runs deploy, assigns **Resonance_Labs_Admin**, and (if present) imports sample data so the acoustic dashboard and flow have data in the org.
+
 ```
-Deploy all Salesforce metadata to the scratch org using these commands:
+Deploy all Salesforce metadata to your dev org or SDO using these commands:
 
-1. First verify the scratch org is authenticated: sfdx force:org:display
+1. First verify the org is authenticated: sf org list or sfdx force:org:display
 
-2. Push all metadata: sfdx force:source:push
+2. Push all metadata: sf project deploy start --target-org [your-org-alias] (or sfdx force:source:push)
 
-3. Assign the permission set: sfdx force:user:permset:assign -n Resonance_Labs_Admin
+3. Assign the permission set: sf org assign permset --name Resonance_Labs_Admin (or sfdx force:user:permset:assign -n Resonance_Labs_Admin)
 
-4. Import the sample data (if in data/ folder): sfdx force:data:tree:import -p data/sample-data-plan.json
+4. Import the sample data (if in data/ folder): sf data import tree --plan data/sample-data-plan.json
 
-5. Open the org to verify: sfdx force:org:open
+5. Open the org to verify: sf org open
 
-If any errors occur during push, run: sfdx force:source:status to see conflicts, then resolve and retry. Ensure all custom objects, fields, the permission set, and the flow are successfully deployed before proceeding.
+If any errors occur during push, run sf project deploy validate or sfdx force:source:status to see conflicts, then resolve and retry. Ensure all custom objects, fields, the permission set, and the flow are successfully deployed before proceeding.
 ```
 
 ---
 
 ## Step 06 — Lightning Web Component
+
+**What this prompt does:** Builds the **acousticDashboard** LWC: metrics cards (active projects, satisfaction, systems installed), bar chart of Installation_Project__c by Stage__c, and data table of Tuning_Session__c with before/after scores and improvement (Chart.js, lightning-datatable, dark gradient styling).
 
 ```
 Create a Lightning Web Component called 'acousticDashboard' for Resonance Labs that displays:
@@ -201,38 +215,19 @@ Create a Lightning Web Component called 'acousticDashboard' for Resonance Labs t
 
 This step is optional. Use it only if you want to version-control your project or share it on GitHub. You can skip it and still have a complete, deployed solution after Step 06.
 
+**What this prompt does:** Initializes Git, adds .gitignore, creates README (project overview, dev org/SDO setup, object relationships, deployment, LWC overview), and pushes to a repo such as resonance-labs-salesforce.
+
 ```
 Initialize a Git repository and push to GitHub:
 
-1. Create a .gitignore file for Salesforce DX with these entries:
-   .sfdx/
-   .sf/
-   .vscode/
-   node_modules/
-   .DS_Store
-   *.log
-   coverage/
-   .nyc_output/
-
+1. Create a .gitignore file for Salesforce DX with entries: .sfdx/, .sf/, .vscode/, node_modules/, .DS_Store, *.log, coverage/, .nyc_output/
 2. Initialize git: git init
-
 3. Add all files: git add .
-
 4. Create initial commit: git commit -m "Initial commit: Resonance Labs Salesforce acoustic system management"
-
-5. Create a new GitHub repository called 'resonance-labs-salesforce' with description: 'Salesforce org for managing AI-tuned audiophile speaker installations, acoustic profiles, and customer tuning sessions for Resonance Labs premium audio systems.'
-
+5. Create a new GitHub repository called 'resonance-labs-salesforce' with description as given in the scenario
 6. Add GitHub remote: git remote add origin [GITHUB_URL]
-
 7. Push to main branch: git branch -M main && git push -u origin main
-
-8. Create a README.md with:
-   - Project title and description
-   - Setup instructions for scratch org creation
-   - Description of custom objects and their relationships
-   - Instructions for deploying metadata
-   - Component overview (LWC dashboard)
-   - Tech stack (Salesforce DX, LWC, Apex, Flows)
+8. Create a README.md with: project title and description, setup instructions for dev org or SDO, description of custom objects and their relationships, deployment instructions, component overview (LWC dashboard), tech stack
 
 Ensure the repository is public and includes proper Salesforce project structure (force-app/main/default/).
 ```

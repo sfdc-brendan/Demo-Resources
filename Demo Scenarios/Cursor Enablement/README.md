@@ -47,7 +47,7 @@ Before starting, have these in place:
 |-------------|----------------|
 | **Cursor** | [Cursor](https://cursor.com) installed on your machine. Sign up or sign in as needed. |
 | **Salesforce CLI** | [Salesforce CLI (`sf`)](https://developer.salesforce.com/docs/atlas-en-us/sfdx_setup_install_cli/sfdx_setup_install_cli_install.htm) installed. We use `sf` (v2), not the legacy `sfdx` wrapper. |
-| **Salesforce org** | A **scratch org** or **sandbox** to deploy to. Demo Resources are for demos/learning—do **not** use production. |
+| **Salesforce org** | A **dev org**, **SDO (Simple Demo Org)**, or **sandbox** to deploy to. Demo Resources are for demos/learning—do **not** use production. |
 | **Terminal** | Your OS terminal (macOS Terminal, Windows Terminal, etc.) for running CLI commands. |
 
 ### Check your setup
@@ -74,26 +74,17 @@ If `sf` isn’t found, install Salesforce CLI from the link above, then run the 
 
 ### 3.2 Authenticate Salesforce CLI to your org
 
-If you don’t have an org set up yet:
-
-**Option A — Scratch org (recommended for demos)**
+If you don’t have an org set up yet, log in to your dev org or SDO (Simple Demo Org):
 
 ```bash
-# Create a scratch org from your project’s config (after you’ve run Step 00 and have a project)
-sf org create scratch --definition-file config/project-scratch-def.json --alias my-demo-org --set-default
-```
-
-**Option B — Sandbox or dev org**
-
-```bash
-# Opens browser to log in; replace MySandbox with an alias you choose
-sf org login web --alias MySandbox --instance-url https://test.salesforce.com
+# Opens browser to log in; replace MyDemoOrg with an alias you choose (e.g. MySDO, DevOrg)
+sf org login web --alias MyDemoOrg --instance-url https://test.salesforce.com
 ```
 
 Then set the default org:
 
 ```bash
-sf config set target-org MySandbox
+sf config set target-org MyDemoOrg
 ```
 
 Confirm:
@@ -281,4 +272,4 @@ If something’s missing, re-run the deploy step (Step 05) or the specific step 
 
 ---
 
-*This enablement guide is for demonstration and learning. Do not deploy Demo Resources scenarios to production. Use a scratch org or sandbox only.*
+*This enablement guide is for demonstration and learning. Do not deploy Demo Resources scenarios to production. Use a dev org, SDO, or sandbox only.*
