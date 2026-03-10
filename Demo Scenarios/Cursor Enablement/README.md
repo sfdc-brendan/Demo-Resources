@@ -1,6 +1,6 @@
 # Cursor Enablement: Deploy Demo Scenarios to Your Salesforce Org
 
-This guide walks **brand-new Cursor users** through using [Demo-Lab](https://github.com/sfdc-brendan/Demo-Lab/tree/main/Demo%20Scenarios) scenarios to build complete Salesforce solutions with Cursor and deploy them to your org. No prior Cursor or AI-assisted development experience required.
+This guide walks **brand-new Cursor users** through using **Demo Resources** scenarios to build complete Salesforce solutions with Cursor and deploy them to your org. No prior Cursor or AI-assisted development experience required.
 
 ---
 
@@ -8,7 +8,7 @@ This guide walks **brand-new Cursor users** through using [Demo-Lab](https://git
 
 - How **Cursor** (AI-powered IDE) and **Cursor Agent** work with Salesforce projects
 - How to run **Step 00** in the terminal to create an SFDX project and connect your org
-- How to run **Steps 01–07** in Cursor Agent so the AI generates objects, data, flows, LWCs, and deployment steps for you
+- How to run **Steps 01–07** in Cursor Agent so the AI generates objects, data, flows, LWCs, and deployment steps for you (Step 07 — push to GitHub — is **optional**)
 - End-to-end flow: pick a scenario → scaffold project → open in Cursor → paste prompts → deploy to Salesforce
 
 ---
@@ -29,7 +29,7 @@ This guide walks **brand-new Cursor users** through using [Demo-Lab](https://git
 
 ## 1. What is Cursor and why use it for Salesforce demos?
 
-**Cursor** is a code editor (based on VS Code) that uses AI to help you write and modify code. For Demo-Lab scenarios:
+**Cursor** is a code editor (based on VS Code) that uses AI to help you write and modify code. For Demo Resources scenarios:
 
 - You **paste a prompt** (e.g. “Create four custom objects…”) into **Cursor Agent**.
 - The Agent **generates** the right metadata (objects, fields, flows, LWCs, etc.) in your project.
@@ -47,7 +47,7 @@ Before starting, have these in place:
 |-------------|----------------|
 | **Cursor** | [Cursor](https://cursor.com) installed on your machine. Sign up or sign in as needed. |
 | **Salesforce CLI** | [Salesforce CLI (`sf`)](https://developer.salesforce.com/docs/atlas-en-us/sfdx_setup_install_cli/sfdx_setup_install_cli_install.htm) installed. We use `sf` (v2), not the legacy `sfdx` wrapper. |
-| **Salesforce org** | A **scratch org** or **sandbox** to deploy to. Demo-Lab is for demos/learning—do **not** use production. |
+| **Salesforce org** | A **scratch org** or **sandbox** to deploy to. Demo Resources are for demos/learning—do **not** use production. |
 | **Terminal** | Your OS terminal (macOS Terminal, Windows Terminal, etc.) for running CLI commands. |
 
 ### Check your setup
@@ -110,22 +110,22 @@ You should see your org with a checkmark or “(default)”.
 
 ### 4.1 Choose a scenario
 
-Open the Demo-Lab repo and go to **Demo Scenarios**:
+All scenarios are in this repo (**Demo Resources**). Open the **Demo Scenarios** folder:
 
-**[Demo-Lab → Demo Scenarios](https://github.com/sfdc-brendan/Demo-Lab/tree/main/Demo%20Scenarios)**
+**[Demo Resources → Demo Scenarios](https://github.com/sfdc-brendan/Demo-Resources/tree/main/Demo%20Scenarios)** (or browse the `Demo Scenarios` folder in this repo)
 
-In the main [Demo Scenarios README](https://github.com/sfdc-brendan/Demo-Lab/blob/main/Demo%20Scenarios/README.md) you’ll see a table of scenarios by industry (Energy, Biotechnology, Aviation, Agriculture, etc.). Each row links to a scenario folder that contains a **README.md** with:
+In the main [Demo Scenarios README](../README.md) you’ll see a table of scenarios by industry (Energy, Biotechnology, Aviation, Agriculture, etc.). Each row links to a scenario folder that contains a **README.md** with:
 
 - The Challenge / What we’re building
 - Custom objects
 - **Step 00** (terminal commands)
-- **Steps 01–07** (prompts to paste into Cursor Agent)
+- **Steps 01–07** (prompts to paste into Cursor Agent; **Step 07 is optional** — push to GitHub)
 
 For your first time, a **Beginner** scenario is easiest, e.g.:
 
-- **[PawPrint Rescue Network](https://github.com/sfdc-brendan/Demo-Lab/tree/main/Demo%20Scenarios/Nonprofit%20%26%20Rescue/PawPrint%20Rescue%20Network)** — Animal rescue (Nonprofit & Rescue, ~35 min)
+- **[PawPrint Rescue Network](../Nonprofit%20%26%20Rescue/PawPrint%20Rescue%20Network/)** — Animal rescue (Nonprofit & Rescue, ~35 min)
 
-Open that scenario’s README and keep it open in a browser tab—you’ll copy from it in the next sections.
+Open that scenario’s README and keep it open in a browser or in Cursor—you’ll copy from it in the next sections.
 
 ### 4.2 Run Step 00 in your terminal
 
@@ -162,7 +162,7 @@ You’ll run all of Steps 01–07 inside this project so the Agent has the right
 
 ## 6. Run Steps 01–07 in Cursor Agent
 
-Each scenario has **Steps 01–07** in its README. Each step is a **single prompt** you paste into **Cursor Agent**. Run them **in order**; later steps depend on earlier ones.
+Each scenario has **Steps 01–07** in its README. Each step is a **single prompt** you paste into **Cursor Agent**. Run them **in order**; later steps depend on earlier ones. **Step 07 (push to GitHub) is optional** — skip it if you don’t need to version-control or share your project on GitHub.
 
 ### 6.1 Open Cursor Agent
 
@@ -178,7 +178,7 @@ For each step (01 through 07):
 3. **Paste** it into the Cursor Agent input box.
 4. Send the message and **wait for the Agent to finish** (creating/editing files, and sometimes running terminal commands).
 5. **Skim the changes** in the file tree or open a file or two to see what was created.
-6. Then move on to the **next** step.
+6. Then move on to the **next** step. (You can **skip Step 07** if you don’t want to push to GitHub.)
 
 Do **not** skip steps or reorder them. If a step fails, see [Troubleshooting](#9-troubleshooting) before continuing.
 
@@ -192,7 +192,7 @@ Do **not** skip steps or reorder them. If a step fails, see [Troubleshooting](#9
 | **04** | Create flows (e.g. screen flows, record-triggered flows). |
 | **05** | Deploy to org: `sf project deploy start`, assign permission set, import data. |
 | **06** | Create a Lightning Web Component (LWC) for the “wow” moment. |
-| **07** | Initialize Git, add `.gitignore`, commit, and push to GitHub. |
+| **07** | **(Optional)** Initialize Git, add `.gitignore`, commit, and push to GitHub. Skip if you don’t need version control or a remote repo. |
 
 Step 05 often runs `sf` commands for you; if the Agent doesn’t, run the deploy/assign/import commands from the scenario README yourself.
 
@@ -219,10 +219,10 @@ If something’s missing, re-run the deploy step (Step 05) or the specific step 
 
 | Phase | Where | Action |
 |-------|--------|--------|
-| Get scenarios | [Demo-Lab → Demo Scenarios](https://github.com/sfdc-brendan/Demo-Lab/tree/main/Demo%20Scenarios) | Open README, pick a scenario, open that scenario’s README. |
+| Get scenarios | This repo: **Demo Scenarios** folder | Open [Demo Scenarios README](../README.md), pick a scenario, open that scenario’s README. |
 | Create project | Terminal | Run **Step 00** from the scenario README. |
 | Open in Cursor | Cursor | File → Open Folder → select project folder. |
-| Build solution | Cursor Agent | Paste **Step 01** → wait → paste **Step 02** → … → **Step 07**. |
+| Build solution | Cursor Agent | Paste **Step 01** → wait → paste **Step 02** → … → **Step 06** (and **Step 07** if you want to push to GitHub). |
 | Deploy / open org | Terminal or Agent | `sf project deploy start`, assign permset, data import; `sf org open`. |
 
 ---
@@ -274,11 +274,11 @@ If something’s missing, re-run the deploy step (Step 05) or the specific step 
 
 ## Where to go next
 
-- **All scenarios:** [Demo-Lab → Demo Scenarios](https://github.com/sfdc-brendan/Demo-Lab/tree/main/Demo%20Scenarios)
-- **Scenario README (what each step contains):** [Demo Scenarios README](https://github.com/sfdc-brendan/Demo-Lab/blob/main/Demo%20Scenarios/README.md)
+- **All scenarios:** This repo — [Demo Scenarios](https://github.com/sfdc-brendan/Demo-Resources/tree/main/Demo%20Scenarios)
+- **Scenario index (what each step contains):** [Demo Scenarios README](../README.md)
 - **Salesforce CLI:** [Salesforce CLI (sf) Setup](https://developer.salesforce.com/docs/atlas-en-us/sfdx_setup_install_cli/sfdx_setup_install_cli_install.htm)
 - **Cursor:** [Cursor documentation](https://docs.cursor.com)
 
 ---
 
-*This enablement guide is for demonstration and learning. Do not deploy Demo-Lab scenarios to production. Use a scratch org or sandbox only.*
+*This enablement guide is for demonstration and learning. Do not deploy Demo Resources scenarios to production. Use a scratch org or sandbox only.*
